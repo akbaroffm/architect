@@ -1,0 +1,275 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-serif: 'Cormorant Garamond', ui-serif, Georgia, serif;
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+
+  --color-ivory: #f8f5f0;
+  --color-sand: #ece4d8;
+  --color-stone: #d6c9b6;
+  --color-taupe: #a08c74;
+  --color-bronze: #85694a;
+  --color-charcoal: #1f1d1b;
+  --color-ink: #3a3632;
+  --color-muted: #6c645b;
+
+  --ease-luxe: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-curtain: cubic-bezier(0.76, 0, 0.24, 1);
+
+  --animate-kenburns: kenburns 9s linear both;
+  --animate-rise: rise 1.3s var(--ease-luxe) both;
+  --animate-fade: fade 1.2s var(--ease-luxe) both;
+  --animate-card-in: card-in 0.9s var(--ease-luxe) both;
+  --animate-scroll-dot: scroll-dot 2.2s ease-in-out infinite;
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-progress: progress linear both;
+
+  @keyframes kenburns {
+    from { transform: scale(1.12); }
+    to { transform: scale(1); }
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(125%); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fade {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes card-in {
+    from { opacity: 0; transform: translateY(48px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes scroll-dot {
+    0% { transform: translateY(0); opacity: 0; }
+    30% { opacity: 1; }
+    80%, 100% { transform: translateY(18px); opacity: 0; }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes progress {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  html,
+  body {
+    overflow-x: clip;
+  }
+  body {
+    @apply bg-ivory font-sans text-ink antialiased;
+    text-rendering: optimizeLegibility;
+    /* Cormorant defaults to old-style figures ("01" reads as "OI") */
+    font-feature-settings: 'lnum' 1;
+  }
+  h1, h2, h3, h4 {
+    @apply font-serif font-normal text-charcoal;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  /* Cormorant's regular weight gets too thin at card/list sizes, especially on phones. */
+  h3,
+  h4 {
+    font-weight: 500;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::selection {
+    @apply bg-stone text-charcoal;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-4 outline-bronze;
+  }
+  button {
+    cursor: pointer;
+  }
+}
+
+@utility container-x {
+  @apply mx-auto w-full max-w-[88rem] px-5 sm:px-8 lg:px-14;
+}
+@utility section {
+  @apply py-24 sm:py-32 lg:py-40;
+}
+@utility eyebrow {
+  @apply inline-flex items-center gap-3 text-[0.68rem] font-medium tracking-[0.3em] text-bronze uppercase;
+  &::before {
+    content: '';
+    @apply h-px w-8 bg-current;
+  }
+}
+/* Mask for "rising" text lines. The padding keeps descenders (g, y, j, q)
+   from being clipped; the negative margin cancels it in the layout. */
+@utility mask-line {
+  display: block;
+  overflow: hidden;
+  padding-top: 0.06em;
+  padding-bottom: 0.22em;
+  margin-top: -0.06em;
+  margin-bottom: -0.22em;
+}
+/* Images fade in once decoded instead of popping in (see ParallaxImage / ProjectCard).
+   Opacity only — the element declares its own transition so hover zooms stay smooth. */
+@utility img-fade {
+  opacity: 0;
+  &.is-loaded {
+    opacity: 1;
+  }
+}
+@utility heading-xl {
+  @apply text-[2.6rem] leading-[1.02] sm:text-6xl lg:text-7xl;
+}
+@utility heading-lg {
+  @apply text-4xl leading-[1.05] sm:text-5xl lg:text-[3.5rem];
+}
+@utility btn {
+  @apply relative inline-flex items-center justify-center gap-3 overflow-hidden px-8 py-4 text-xs font-medium tracking-[0.2em] uppercase transition-colors duration-500;
+}
+@utility btn-dark {
+  @apply btn bg-charcoal text-ivory hover:bg-bronze;
+}
+@utility btn-light {
+  @apply btn bg-ivory text-charcoal hover:bg-sand;
+}
+@utility btn-outline {
+  @apply btn border border-charcoal/30 text-charcoal hover:border-charcoal hover:bg-charcoal hover:text-ivory;
+}
+@utility btn-outline-light {
+  @apply btn border border-ivory/40 text-ivory hover:border-ivory hover:bg-ivory hover:text-charcoal;
+}
+@utility link-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.6s var(--ease-luxe);
+  &:hover,
+  &.is-active {
+    background-size: 100% 1px;
+  }
+}
+
+/* ── Scroll reveal (see src/directives/reveal.js) ─────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition:
+    opacity 1.2s var(--ease-luxe),
+    transform 1.2s var(--ease-luxe);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal-left {
+  transform: translateX(-48px);
+}
+.reveal-right {
+  transform: translateX(48px);
+}
+.reveal-fade {
+  transform: none;
+}
+/* The clip lives on the child: IntersectionObserver ignores fully clipped targets. */
+.reveal-img {
+  overflow: hidden;
+}
+.reveal-img > * {
+  clip-path: inset(100% 0 0 0);
+  transform: scale(1.12) translateY(4%);
+  transition:
+    clip-path 1.25s var(--ease-curtain),
+    transform 1.6s var(--ease-luxe);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal-img:not(.is-visible) > * {
+  will-change: clip-path, transform;
+}
+.reveal-line {
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 2.2s var(--ease-luxe);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+@media (width >= 64rem) {
+  .reveal-line {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+}
+.reveal-line.is-visible,
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+.reveal-img.is-visible > * {
+  clip-path: inset(0 0 0 0);
+  transform: none;
+}
+
+
+/* ── Page transition motion (see App.vue / PageCurtain.vue) ──── */
+.page-leave {
+  transform: translateY(-7vh);
+  opacity: 0.35;
+  transition:
+    transform 0.9s var(--ease-curtain),
+    opacity 0.9s var(--ease-curtain);
+}
+.page-enter {
+  animation: page-enter 1.25s var(--ease-curtain) backwards;
+}
+@keyframes page-enter {
+  from { transform: translateY(14vh); }
+  to { transform: none; }
+}
+
+/* ── Vue transitions ─────────────────────────────────────────── */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s var(--ease-luxe);
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-next-enter-active,
+.slide-next-leave-active,
+.slide-prev-enter-active,
+.slide-prev-leave-active {
+  transition: opacity 0.6s var(--ease-luxe), transform 0.6s var(--ease-luxe);
+}
+.slide-next-enter-from,
+.slide-prev-leave-to {
+  opacity: 0;
+  transform: translateX(40px);
+}
+.slide-next-leave-to,
+.slide-prev-enter-from {
+  opacity: 0;
+  transform: translateX(-40px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+  .reveal,
+  .reveal-img > *,
+  .reveal-line {
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+}
